@@ -1,9 +1,9 @@
 import './LiquidityForm.css';
-import { ethers } from 'ethers';
+import { ethers } from 'lib/ethers.js';
 import { useContext, useEffect, useState } from 'react';
 import { uint256Max } from '../lib/constants';
-import { MetaMaskContext } from '../contexts/MetaMask';
-import { TickMath, encodeSqrtRatioX96, nearestUsableTick } from '@uniswap/v3-sdk';
+import { MetaMaskContext } from '../context/MetaMask';
+import { TickMath, encodeSqrtRatioX96, nearestUsableTick } from 'lib/v3-sdk';
 import config from "../config.js";
 
 const slippage = 0.5;
@@ -62,7 +62,7 @@ const AmountInput = ({ amount, disabled, setAmount, token }) => {
   );
 }
 
-const LiquidityForm = ({ toggle, token0Info, token1Info, tickSpacing }) => {
+const AddLiquidityForm = ({ toggle, token0Info, token1Info, fee }) => {
   const metamaskContext = useContext(MetaMaskContext);
   const enabled = metamaskContext.status === 'connected';
   const account = metamaskContext.account;
@@ -119,9 +119,9 @@ const LiquidityForm = ({ toggle, token0Info, token1Info, tickSpacing }) => {
     const mintParams = {
       tokenA: token0.address,
       tokenB: token1.address,
-      tickSpacing: tickSpacing,
-      lowerTick: nearestUsableTick(lowerTick, tickSpacing),
-      upperTick: nearestUsableTick(upperTick, tickSpacing),
+      fee: fee,
+      lowerTick: nearestUsableTick(lowerTick, feeToSpacing[fee]),
+      upperTick: nearestUsableTick(upperTick, feeToSpacing[fee]),
       amount0Desired, amount1Desired, amount0Min, amount1Min
     }
 
@@ -210,4 +210,4 @@ const LiquidityForm = ({ toggle, token0Info, token1Info, tickSpacing }) => {
   );
 };
 
-export default LiquidityForm;
+export default AddLiquidityForm;

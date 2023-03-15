@@ -8,6 +8,13 @@ import "../test/ERC20Mintable.sol";
 import "../src/LukiswapV3Manager.sol";
 import "../src/LukiswapV3pool.sol";
 import "../lib/forge-std/src/console.sol";
+import "../src/LukiswapV3Quoter.sol";
+import "../src/LukiswapV3Factory.sol";
+//import "../src/lib/Math.sol";
+import "../src/lib/FixedPoint96.sol";
+import "../src/interfaces/ILukiswapV3Manager.sol";
+
+
 
 contract Deploy is Script, TestUtils {
     struct TokenBalances {
@@ -37,11 +44,11 @@ contract Deploy is Script, TestUtils {
         ERC20Mintable wbtc = new ERC20Mintable("Wrapped Bitcoin", "WBTC", 18);
         ERC20Mintable usdt = new ERC20Mintable("USD Token", "USDT", 18);
 
-        UniswapV3Factory factory = new UniswapV3Factory();
-        UniswapV3Manager manager = new UniswapV3Manager(address(factory));
-        UniswapV3Quoter quoter = new UniswapV3Quoter(address(factory));
+        LukiswapV3Factory factory = new LukiswapV3Factory();
+        LukiswapV3Manager manager = new LukiswapV3Manager(address(factory));
+        LukiswapV3Quoter quoter = new LukiswapV3Quoter(address(factory));
 
-        UniswapV3Pool wethUsdc = deployPool(
+        LukiswapV3pool wethUsdc = deployPool(
             factory,
             address(weth),
             address(usdc),
@@ -49,7 +56,7 @@ contract Deploy is Script, TestUtils {
             5000
         );
 
-        UniswapV3Pool wethUni = deployPool(
+        LukiswapV3pool wethUni = deployPool(
             factory,
             address(weth),
             address(uni),
@@ -57,7 +64,7 @@ contract Deploy is Script, TestUtils {
             10
         );
 
-        UniswapV3Pool wbtcUSDT = deployPool(
+        LukiswapV3pool wbtcUSDT = deployPool(
             factory,
             address(wbtc),
             address(usdt),
@@ -65,7 +72,7 @@ contract Deploy is Script, TestUtils {
             20_000
         );
 
-        UniswapV3Pool usdtUSDC = deployPool(
+        LukiswapV3pool usdtUSDC = deployPool(
             factory,
             address(usdt),
             address(usdc),

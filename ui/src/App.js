@@ -2,8 +2,8 @@ import './App.css';
 import { useState } from 'react';
 import SwapForm from './components/SwapForm.js';
 import MetaMask from './components/MetaMask.js';
-import EventsFeed from './components/EventsFeed.js';
-import { MetaMaskProvider } from './contexts/MetaMask';
+import EventsFeed  from './components/EventsFeed.js';
+import { MetaMaskProvider } from './context/MetaMask';
 
 const App = () => {
   const [pairs, setPairs] = useState([]);

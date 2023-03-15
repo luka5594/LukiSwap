@@ -1,14 +1,16 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.14;
 
+
+//import "./LukiswapV3pool.sol";
+
 import "./interfaces/IERC20.sol";
-import "./LukiswapV3pool.sol";
 import "./interfaces/ILukiswapV3Manager.sol";
-import "./lib/Path.sol";
 import "./interfaces/ILukiswapV3Pool.sol";
 import "./lib/PoolAddress.sol";
 import "./lib/TickMath.sol";
 import "./lib/LiquidityMath.sol";
+import "./lib/Path.sol";
 
 contract LukiswapV3Manager is ILukiswapV3Manager {
      using Path for bytes;
@@ -22,19 +24,43 @@ contract LukiswapV3Manager is ILukiswapV3Manager {
         factory = factory_;
     }
 
+     function getPosition(GetPositionParams calldata params)
+        public
+        view
+        returns (
+            uint128 liquidity,
+            uint256 feeGrowthInside0LastX128,
+            uint256 feeGrowthInside1LastX128,
+            uint128 tokensOwed0,
+            uint128 tokensOwed1
+        )
+    {
+        ILukiswapV3Pool pool = getPool(params.tokenA, params.tokenB, params.fee);
+
+        (
+            liquidity,
+            feeGrowthInside0LastX128,
+            feeGrowthInside1LastX128,
+            tokensOwed0,
+            tokensOwed1
+        ) = pool.positions(
+            keccak256(
+                abi.encodePacked(
+                    params.owner,
+                    params.lowerTick,
+                    params.upperTick
+                )
+            )
+        );
+    }
+
     function mint(MintParams calldata params)
         public
         returns (uint256 amount0, uint256 amount1)
     {
-        address poolAddress = PoolAddress.computeAddress(
-            factory,
-            params.tokenA,
-            params.tokenB,
-            params.tickSpacing
-        );
-        ILukiswapV3Pool pool = ILukiswapV3Pool(poolAddress);
+        ILukiswapV3Pool pool = getPool(params.tokenA, params.tokenB, params.fee);
 
-        (uint160 sqrtPriceX96, ) = pool.slot0();
+        (uint160 sqrtPriceX96, , , , ) = pool.slot0();
         uint160 sqrtPriceLowerX96 = TickMath.getSqrtRatioAtTick(
             params.lowerTick
         );
@@ -79,7 +105,7 @@ contract LukiswapV3Manager is ILukiswapV3Manager {
             SwapCallbackData({
                 path: abi.encodePacked(
                     params.tokenIn,
-                    params.tickSpacing,
+                    params.fee,
                     params.tokenOut
                 ),
                 payer: msg.sender
@@ -153,13 +179,13 @@ contract LukiswapV3Manager is ILukiswapV3Manager {
     function getPool(
         address token0,
         address token1,
-        uint24 tickSpacing
+        uint24 fee
     ) internal view returns (ILukiswapV3Pool pool) {
         (token0, token1) = token0 < token1
             ? (token0, token1)
             : (token1, token0);
         pool = ILukiswapV3Pool(
-            PoolAddress.computeAddress(factory, token0, token1, tickSpacing)
+            PoolAddress.computeAddress(factory, token0, token1, fee)
         );
     }
 

@@ -2,11 +2,12 @@
 pragma solidity ^0.8.14;
 
 interface ILukiswapV3PoolDeployer {
-    struct PoolParameters {
+    struct PoolParams {
         address factory;
         address token0;
         address token1;
         uint24 tickSpacing;
+        uint24 fee;
     }
 
     function parameters()
@@ -15,7 +16,8 @@ interface ILukiswapV3PoolDeployer {
             address factory,
             address token0,
             address token1,
-            uint24 tickSpacing
+            uint24 tickSpacing,
+            uint24 fee
         );
 }
 
